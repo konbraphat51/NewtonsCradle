@@ -104,7 +104,7 @@ function GetColor(i){
 }
 
 function SimulatePhysics(){
-    //SimulateContactForce();
+    SimulateContactForce();
 
     //should be last
     SimulateStringConstraint();
@@ -122,13 +122,35 @@ function CalculateContactForce(spring, elastic, overlap, speed_relative){
 }
 
 function SimulateContactForce(){
-    //initialize all balls
-    for (var i = 0; i < balls_n; i++) {
-        balls[i].f_contact = 0;
-    }
+    //per pair of balls
+    for (var cnt = 0; cnt < balls.length -1; cnt++) {
+        //balls[cnt] and balls[cnt + 1] are neighbors
+        const ball0 = balls[cnt];
+        const ball1 = balls[cnt + 1];
 
-    //by Descrete Element Method
-    for (var i = 0; i < balls_n-1; i++) {
+        //0-to-1 side: +
+        //calculate relative amounts based on ball0
+
+        //calculate overlap
+        const distance = GetDistance(ball0.position, ball1.position);
+        //for ball0(left side), overlap is to-right, so positive.
+        var overlap = ball0.radius + ball1.radius - distance;
+        if (overlap <= 0){
+            //not contacting
+            continue;
+        }
+
+        //calculate relative speed
+        const zero2one = MinusVec(ball1.position, ball0.position);
+        const speed_relative = DotVec(zero2one, MinusVec(ball0.velocity, ball1.velocity)) / GetVecLength(zero2one);
+
+        //calculate force
+        const force_sc = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_ELASTIC, overlap, speed_relative);
+        const force = ChangeVecLength(zero2one, force_sc);
+
+        //give force to the balls
+        ball0.GiveForce(force);
+        ball1.GiveForce(MultiplyVec(-1, force));
     }
 }
 
