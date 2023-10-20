@@ -4,18 +4,27 @@ const SPF = 1 / FPS;
 
 //String
 const ROOF_Y = 100;
-const STRING_LENGTH = 100;
+const STRING_LENGTH_INITIAL = 100;
 
 //Ball
-const RADIUS = 20;
+const RADIUS_INITIAL = 20;
 const COLORS = ["red", "green", "blue", "yellow", "purple", "orange", "pink", "brown", "gray"]
 
 //physics consts
-const BALL2BALL_SPRING = 1e2;   //バネ係数
-const BALL2BALL_ELASTIC = 1e2;  //弾性係数
-const STRING2BALL_SPRING = 1e4; 
-const STRING2BALL_ELASTIC = 1e3;
-const GRAVITY = [0, 1e1];
+var BALL2BALL_SPRING = 1e2;   //バネ係数
+var BALL2BALL_ELASTIC = 1e2;  //弾性係数
+var STRING2BALL_SPRING = 1e4; 
+var STRING2BALL_ELASTIC = 1e3;
+var GRAVITY = [0, 1e1];
+
+//HTML ids
+const ID_BALLS = "balls";
+const ID_BALL2BALL_SPRING = "ball2ball_spring";
+const ID_BALL2BALL_ELASTIC = "ball2ball_elastic";
+const ID_STRING2BALL_SPRING = "string2ball_spring";
+const ID_STRING2BALL_ELASTIC = "string2ball_elastic";
+const ID_GRAVITY_X = "gravity_x";
+const ID_GRAVITY_Y = "gravity_y";
 
 //Control
 function ControlForce(distance) {
@@ -55,30 +64,72 @@ class Ball {
     }
 }
 
+function PutAdjustmentFields() {
+    //balls_n
+    PutNumberInputField(ID_BALLS, "number of balls", OnBallsNChanged, balls_n, 1, 100, 1);
+
+    //BALL2BALL
+    PutNumberInputFieldE(ID_BALL2BALL_SPRING, "ball2ball_spring", OnParametersChanged, BALL2BALL_SPRING);
+    PutNumberInputFieldE(ID_BALL2BALL_ELASTIC, "ball2ball_elastic", OnParametersChanged, BALL2BALL_ELASTIC);
+
+    //STRING2BALL
+    PutNumberInputFieldE(ID_STRING2BALL_SPRING, "string2ball_spring", OnParametersChanged, STRING2BALL_SPRING);
+    PutNumberInputFieldE(ID_STRING2BALL_ELASTIC, "string2ball_elastic", OnParametersChanged, STRING2BALL_ELASTIC);
+
+    //GRAVITY
+    PutNumberInputField(ID_GRAVITY_X, "gravity_x", OnParametersChanged, GRAVITY[0]);
+    PutNumberInputField(ID_GRAVITY_Y, "gravity_y", OnParametersChanged, GRAVITY[1]);
+}
+
 function Reset(){
     balls = []
     clearInterval();
 }
 
+function OnParametersChanged() {
+    GetParameters();
+}
+
 function OnBallsNChanged() {
+    Initialize();
+}
+
+function Initialize() {
     Reset();
 
-    balls_elem = document.getElementById("balls").value;
-    balls_n = balls_elem -0;
+    //get balls number
+    balls_n = GetNumberInputFieldValue(ID_BALLS, true);
+
+
+    GetParameters();
 
     AllocateBalls();
 }
 
+function GetParameters() {
+    //BALL2BALL
+    BALL2BALL_SPRING = GetNumberInputFieldValueE(ID_BALL2BALL_SPRING);
+    BALL2BALL_ELASTIC = GetNumberInputFieldValueE(ID_BALL2BALL_ELASTIC);
+
+    //STRING2BALL
+    STRING2BALL_SPRING = GetNumberInputFieldValueE(ID_STRING2BALL_SPRING);
+    STRING2BALL_ELASTIC = GetNumberInputFieldValueE(ID_STRING2BALL_ELASTIC);
+
+    //GRAVITY
+    GRAVITY[0] = GetNumberInputFieldValue(ID_GRAVITY_X, true);
+    GRAVITY[1] = GetNumberInputFieldValue(ID_GRAVITY_Y, true);
+}
+
 function AllocateBalls() {
     const center = GetCanvasSize()[0] / 2;
-    const interval = RADIUS * 2;
-    const y = ROOF_Y + STRING_LENGTH;
+    const interval = RADIUS_INITIAL * 2;
+    const y = ROOF_Y + STRING_LENGTH_INITIAL;
 
     for (var i = 0; i < balls_n; i++) {
         var x = center + interval * (i - balls_n);
 
         var pin = new Pin([x, ROOF_Y]);
-        balls.push(new Ball([x, y], RADIUS, 100, pin));
+        balls.push(new Ball([x, y], RADIUS_INITIAL, 100, pin));
     }
 }
 
@@ -174,9 +225,9 @@ function SimulateStringConstraint(){
 
         //calculate overlap
         const pin2ball = MinusVec(ball.position, pin.position);
-        const string_tip_position = PlusVec(pin.position, ChangeVecLength(pin2ball, STRING_LENGTH));
+        const string_tip_position = PlusVec(pin.position, ChangeVecLength(pin2ball, STRING_LENGTH_INITIAL));
         var overlap = GetDistance(string_tip_position, ball.position);
-        if (STRING_LENGTH < GetVecLength(pin2ball)){
+        if (STRING_LENGTH_INITIAL < GetVecLength(pin2ball)){
             //too far
             overlap = -overlap;
         }
@@ -243,9 +294,10 @@ function Control(){
     }
 }
 
+PutAdjustmentFields();
+
 async function main() {
-    //initialize
-    OnBallsNChanged();
+    Initialize();
 
     await MainLoop();
 }
