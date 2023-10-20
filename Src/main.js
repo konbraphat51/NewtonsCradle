@@ -15,6 +15,7 @@ const BALL2BALL_SPRING = 1e2;   //バネ係数
 const BALL2BALL_ELASTIC = 1e2;  //弾性係数
 const STRING2BALL_SPRING = 1e4; 
 const STRING2BALL_ELASTIC = 1e3;
+const GRAVITY = [0, 1e1];
 
 //Control
 function ControlForce(distance) {
@@ -105,6 +106,7 @@ function GetColor(i){
 
 function SimulatePhysics(){
     SimulateContactForce();
+    SimulateGravity();
 
     //should be last
     SimulateStringConstraint();
@@ -151,6 +153,12 @@ function SimulateContactForce(){
         //give force to the balls
         ball0.GiveForce(force);
         ball1.GiveForce(MultiplyVec(-1, force));
+    }
+}
+
+function SimulateGravity() {
+    for (var cnt = 0; cnt < balls.length; cnt++) {
+        balls[cnt].GiveForce(MultiplyVec(balls[cnt].mass, GRAVITY));
     }
 }
 
