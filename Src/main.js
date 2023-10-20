@@ -1,5 +1,5 @@
 //Base
-const FPS = 30;
+const FPS = 60;
 const SPF = 1 / FPS;
 
 //String
@@ -11,11 +11,11 @@ const RADIUS_INITIAL = 20;
 const COLORS = ["red", "green", "blue", "yellow", "purple", "orange", "pink", "brown", "gray"]
 
 //physics consts
-var BALL2BALL_SPRING = 1e2;   //バネ係数
-var BALL2BALL_ELASTIC = 1e2;  //弾性係数
+var BALL2BALL_SPRING = 1e4;   //バネ係数
+var BALL2BALL_ELASTIC = 1e3;  //弾性係数
 var STRING2BALL_SPRING = 1e4; 
 var STRING2BALL_ELASTIC = 1e3;
-var GRAVITY = [0, 1e1];
+var GRAVITY = [0, 1e2];
 
 //HTML ids
 const ID_BALLS = "balls";
@@ -29,7 +29,7 @@ const ID_GRAVITY_Y = "gravity_y";
 //Control
 function ControlForce(distance) {
     //the infinite integration should converge to 0 (Or it will keep swinging)
-    return (1 / (1 + distance)**2) * 1e6;
+    return (1 / (1 + distance)**2) * 1e7;
 }
 
 var balls_n = 5;
@@ -38,6 +38,11 @@ var balls = [];
 class Pin{
     constructor(position) {
         this.position = position
+    }
+
+    Draw() {
+        SetColor("black");
+        DrawCircle(this.position[0], this.position[1], 2);
     }
 }
 
@@ -100,7 +105,6 @@ function Initialize() {
     //get balls number
     balls_n = GetNumberInputFieldValue(ID_BALLS, true);
 
-
     GetParameters();
 
     AllocateBalls();
@@ -138,10 +142,14 @@ function Draw(){
     SetColor("white");
     DrawRect(0, 0, GetCanvasSize()[0], GetCanvasSize()[1]);
 
-    //draw balls
+    //draw balls & pins
     for (var i = 0; i < balls_n; i++) {
+        //ball
         SetColor(GetColor(i));
         balls[i].Draw();
+
+        //pin
+        balls[i].pin.Draw();
     }
 
     //draw strings
