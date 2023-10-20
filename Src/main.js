@@ -9,6 +9,7 @@ const STRING_LENGTH_INITIAL = 100;
 //Ball
 const RADIUS_INITIAL = 20;
 const COLORS = ["red", "green", "blue", "yellow", "purple", "orange", "pink", "brown", "gray"]
+const MASS_INITIAL = 100;
 
 //physics consts
 var BALL2BALL_SPRING = 1e4;   //バネ係数
@@ -25,6 +26,10 @@ const ID_STRING2BALL_SPRING = "string2ball_spring";
 const ID_STRING2BALL_ELASTIC = "string2ball_elastic";
 const ID_GRAVITY_X = "gravity_x";
 const ID_GRAVITY_Y = "gravity_y";
+
+const ID_BALL_LENGTH = "ball_length_";
+const ID_BALL_MASS = "ball_mass_";
+const ID_BALL_RADIUS = "ball_radius_";
 
 //Control
 function ControlForce(distance) {
@@ -47,11 +52,12 @@ class Pin{
 }
 
 class Ball {
-    constructor(position, radius, mass, pin) {
+    constructor(position, radius, mass, string_length, pin) {
         this.position = position;
         this.radius = radius;
         this.mass = mass;
-        this.pin = pin
+        this.string_length = string_length;
+        this.pin = pin;
         this.f = [0, 0];
         this.velocity = [0, 0];
     }
@@ -84,30 +90,42 @@ function PutAdjustmentFields() {
     //GRAVITY
     PutNumberInputField(ID_GRAVITY_X, "gravity_x", OnParametersChanged, GRAVITY[0]);
     PutNumberInputField(ID_GRAVITY_Y, "gravity_y", OnParametersChanged, GRAVITY[1]);
+
+    //balls parameters
+    for (var i = 0; i < balls_n; i++) {
+        PutNumberInputField(ID_BALL_RADIUS + i, "ball_radius_" + i, OnParametersChanged, RADIUS_INITIAL, 1, 1000, 1);
+        PutNumberInputField(ID_BALL_MASS + i, "ball_mass_" + i, OnParametersChanged, MASS_INITIAL, 1, 1000, 1);
+        PutNumberInputField(ID_BALL_LENGTH + i, "ball_string_length_" + i, OnParametersChanged, STRING_LENGTH_INITIAL, 1, 1000, 1);
+    }
 }
 
-function Reset(){
+function Clear(){
     balls = []
-    clearInterval();
 }
 
 function OnParametersChanged() {
     GetParameters();
+    GetBallParameters();
 }
 
 function OnBallsNChanged() {
+    //get balls number
+    balls_n = GetNumberInputFieldValue(ID_BALLS, true);
+
+    EraceAllHTML();
+    PutAdjustmentFields();
+
     Initialize();
 }
 
 function Initialize() {
-    Reset();
-
-    //get balls number
-    balls_n = GetNumberInputFieldValue(ID_BALLS, true);
+    Clear();
 
     GetParameters();
 
     AllocateBalls();
+
+    GetBallParameters();
 }
 
 function GetParameters() {
@@ -124,6 +142,17 @@ function GetParameters() {
     GRAVITY[1] = GetNumberInputFieldValue(ID_GRAVITY_Y, true);
 }
 
+function GetBallParameters() {
+    //need to be seperated from GetParameters() because balls should be initialized
+
+    //balls
+    for (var i = 0; i < balls_n; i++) {
+        balls[i].radius = GetNumberInputFieldValue(ID_BALL_RADIUS + i, true);
+        balls[i].mass = GetNumberInputFieldValue(ID_BALL_MASS + i, true);
+        balls[i].string_length = GetNumberInputFieldValue(ID_BALL_LENGTH + i, true);
+    }
+}
+
 function AllocateBalls() {
     const center = GetCanvasSize()[0] / 2;
     const interval = RADIUS_INITIAL * 2;
@@ -133,7 +162,7 @@ function AllocateBalls() {
         var x = center + interval * (i - balls_n);
 
         var pin = new Pin([x, ROOF_Y]);
-        balls.push(new Ball([x, y], RADIUS_INITIAL, 100, pin));
+        balls.push(new Ball([x, y], RADIUS_INITIAL, MASS_INITIAL, STRING_LENGTH_INITIAL, pin));
     }
 }
 
@@ -233,9 +262,9 @@ function SimulateStringConstraint(){
 
         //calculate overlap
         const pin2ball = MinusVec(ball.position, pin.position);
-        const string_tip_position = PlusVec(pin.position, ChangeVecLength(pin2ball, STRING_LENGTH_INITIAL));
+        const string_tip_position = PlusVec(pin.position, ChangeVecLength(pin2ball, ball.string_length));
         var overlap = GetDistance(string_tip_position, ball.position);
-        if (STRING_LENGTH_INITIAL < GetVecLength(pin2ball)){
+        if (ball.string_length < GetVecLength(pin2ball)){
             //too far
             overlap = -overlap;
         }
