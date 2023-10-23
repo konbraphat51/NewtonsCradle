@@ -331,6 +331,8 @@ function Control(){
     }
 }
 
+PreventAllDefault();
+
 PutAdjustmentFields();
 
 async function main() {
