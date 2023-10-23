@@ -331,7 +331,7 @@ function Control(){
     }
 }
 
-PreventAllDefault();
+StopAllTouchDefaults();
 
 PutAdjustmentFields();
 
