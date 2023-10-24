@@ -92,7 +92,7 @@ function PutAdjustmentFields() {
     PutNumberInputField(ID_GRAVITY_Y, "gravity_y", GRAVITY[1], OnParametersChanged);
 
     //balls parameters
-    for (var i = 0; i < balls_n; i++) {
+    for (let i = 0; i < balls_n; i++) {
         PutNumberInputField(ID_BALL_RADIUS + i, "ball_radius_" + i, RADIUS_INITIAL, 1, 1000, 1, OnParametersChanged);
         PutNumberInputField(ID_BALL_MASS + i, "ball_mass_" + i, MASS_INITIAL, 1, 1000, 1, OnParametersChanged);
         PutNumberInputField(ID_BALL_LENGTH + i, "ball_string_length_" + i, STRING_LENGTH_INITIAL, 1, 1000, 1, OnParametersChanged);
@@ -146,7 +146,7 @@ function GetBallParameters() {
     //need to be seperated from GetParameters() because balls should be initialized
 
     //balls
-    for (var i = 0; i < balls_n; i++) {
+    for (let i = 0; i < balls_n; i++) {
         balls[i].radius = GetNumberInputFieldValue(ID_BALL_RADIUS + i, true);
         balls[i].mass = GetNumberInputFieldValue(ID_BALL_MASS + i, true);
         balls[i].string_length = GetNumberInputFieldValue(ID_BALL_LENGTH + i, true);
@@ -158,10 +158,10 @@ function AllocateBalls() {
     const interval = RADIUS_INITIAL * 2;
     const y = ROOF_Y + STRING_LENGTH_INITIAL;
 
-    for (var i = 0; i < balls_n; i++) {
-        var x = center + interval * (i - balls_n);
+    for (let i = 0; i < balls_n; i++) {
+        let x = center + interval * (i - balls_n);
 
-        var pin = new Pin([x, ROOF_Y]);
+        let pin = new Pin([x, ROOF_Y]);
         balls.push(new Ball([x, y], RADIUS_INITIAL, MASS_INITIAL, STRING_LENGTH_INITIAL, pin));
     }
 }
@@ -172,7 +172,7 @@ function Draw(){
     DrawRect(0, 0, GetCanvasSize()[0], GetCanvasSize()[1]);
 
     //draw balls & pins
-    for (var i = 0; i < balls_n; i++) {
+    for (let i = 0; i < balls_n; i++) {
         //ball
         SetColor(GetColor(i));
         balls[i].Draw();
@@ -182,7 +182,7 @@ function Draw(){
     }
 
     //draw strings
-    for (var i = 0; i < balls_n; i++) {
+    for (let i = 0; i < balls_n; i++) {
         SetColor("black");
         DrawLine(balls[i].position[0], balls[i].position[1], balls[i].pin.position[0], balls[i].pin.position[1]);
     }
@@ -213,7 +213,7 @@ function CalculateContactForce(spring, elastic, overlap, speed_relative){
 
 function SimulateContactForce(){
     //per pair of balls
-    for (var cnt = 0; cnt < balls.length -1; cnt++) {
+    for (let cnt = 0; cnt < balls.length -1; cnt++) {
         //balls[cnt] and balls[cnt + 1] are neighbors
         const ball0 = balls[cnt];
         const ball1 = balls[cnt + 1];
@@ -224,7 +224,7 @@ function SimulateContactForce(){
         //calculate overlap
         const distance = GetDistance(ball0.position, ball1.position);
         //for ball0(left side), overlap is to-right, so positive.
-        var overlap = ball0.radius + ball1.radius - distance;
+        let overlap = ball0.radius + ball1.radius - distance;
         if (overlap <= 0){
             //not contacting
             continue;
@@ -245,7 +245,7 @@ function SimulateContactForce(){
 }
 
 function SimulateGravity() {
-    for (var cnt = 0; cnt < balls.length; cnt++) {
+    for (let cnt = 0; cnt < balls.length; cnt++) {
         balls[cnt].GiveForce(MultiplyVec(balls[cnt].mass, GRAVITY));
     }
 }
@@ -253,7 +253,7 @@ function SimulateGravity() {
 //This function should be last before the movement simulation
 function SimulateStringConstraint(){
     //for each ball
-    for(var cnt = 0; cnt < balls.length; cnt++){
+    for(let cnt = 0; cnt < balls.length; cnt++){
         //calculate string force
         const ball = balls[cnt];
         const pin = ball.pin;
@@ -263,7 +263,7 @@ function SimulateStringConstraint(){
         //calculate overlap
         const pin2ball = MinusVec(ball.position, pin.position);
         const string_tip_position = PlusVec(pin.position, ChangeVecLength(pin2ball, ball.string_length));
-        var overlap = GetDistance(string_tip_position, ball.position);
+        let overlap = GetDistance(string_tip_position, ball.position);
         if (ball.string_length < GetVecLength(pin2ball)){
             //too far
             overlap = -overlap;
@@ -285,8 +285,8 @@ function SimulateStringConstraint(){
 
 function SimulateMovement() {
     //per ball
-    for (var cnt = 0; cnt < balls.length; cnt++) {
-        var ball = balls[cnt];
+    for (let cnt = 0; cnt < balls.length; cnt++) {
+        let ball = balls[cnt];
 
         //move the ball by F = ma
         const acceleration = MultiplyVec(1 / ball.mass, ball.f);
@@ -302,32 +302,47 @@ function SimulateMovement() {
     }
 }
 
+//0->not clicking, 1->ball selected, 2->pin selected
+var is_selecting = 0;
+var selected_index = -1;
 function Control(){
     if (GetMouse()){
-        //get key position
-        const mouse_position = [GetMouseX(), GetMouseY()];
+        //get mouse position
+        const mouse_position = GetMousePosition();
 
-        //get nearest ball
-        var nearest_ball_index = 0;
-        var temp = 1e10;
-        for (var i = 0; i < balls_n; i++) {
-            const distance = GetDistance(mouse_position, balls[i].position);
-            
-            if (distance < temp){
-                temp = distance;
-                nearest_ball_index = i;
+        if (is_selecting == 0) {
+            //click starting
+            is_selecting = true;
+
+            //get nearest ball
+            let nearest_ball_index = 0;
+            let temp = 1e10;
+            for (let i = 0; i < balls_n; i++) {
+                const distance = GetDistance(mouse_position, balls[i].position);
+                
+                if (distance < temp){
+                    temp = distance;
+                    nearest_ball_index = i;
+                }
             }
+
+            is_selecting = 1;
+            selected_index = nearest_ball_index
         }
+        
+        if (is_selecting = 1){
+            //>>calculate control force for the ball
+            const pin_position = balls[selected_index].pin.position;
 
-        //>>calculate control force for the ball
-        const pin_position = balls[nearest_ball_index].pin.position;
+            const pin2mouse = MinusVec(mouse_position, pin_position);        
+            const control_force_sc = ControlForce(GetVecLength(pin2mouse));
+            const control_force = MultiplyVec(control_force_sc, pin2mouse);
 
-        const pin2mouse = MinusVec(mouse_position, pin_position);        
-        const control_force_sc = ControlForce(GetVecLength(pin2mouse));
-        const control_force = MultiplyVec(control_force_sc, pin2mouse);
-
-        balls[nearest_ball_index].GiveForce(control_force);
-        //<<
+            balls[selected_index].GiveForce(control_force);
+            //<<
+        }
+    } else {
+        is_selecting = 0;
     }
 }
 
