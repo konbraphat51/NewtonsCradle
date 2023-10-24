@@ -77,25 +77,25 @@ class Ball {
 
 function PutAdjustmentFields() {
     //balls_n
-    PutNumberInputField(ID_BALLS, "number of balls", OnBallsNChanged, balls_n, 1, 100, 1);
+    PutNumberInputField(ID_BALLS, "number of balls", balls_n, 1, 100, 1, OnBallsNChanged);
 
     //BALL2BALL
-    PutNumberInputFieldE(ID_BALL2BALL_SPRING, "ball2ball_spring", OnParametersChanged, BALL2BALL_SPRING);
-    PutNumberInputFieldE(ID_BALL2BALL_ELASTIC, "ball2ball_elastic", OnParametersChanged, BALL2BALL_ELASTIC);
+    PutNumberInputFieldE(ID_BALL2BALL_SPRING, "ball2ball_spring", BALL2BALL_SPRING, OnParametersChanged);
+    PutNumberInputFieldE(ID_BALL2BALL_ELASTIC, "ball2ball_elastic", BALL2BALL_ELASTIC, OnParametersChanged);
 
     //STRING2BALL
-    PutNumberInputFieldE(ID_STRING2BALL_SPRING, "string2ball_spring", OnParametersChanged, STRING2BALL_SPRING);
-    PutNumberInputFieldE(ID_STRING2BALL_ELASTIC, "string2ball_elastic", OnParametersChanged, STRING2BALL_ELASTIC);
+    PutNumberInputFieldE(ID_STRING2BALL_SPRING, "string2ball_spring", STRING2BALL_SPRING, OnParametersChanged);
+    PutNumberInputFieldE(ID_STRING2BALL_ELASTIC, "string2ball_elastic", STRING2BALL_ELASTIC, OnParametersChanged);
 
     //GRAVITY
-    PutNumberInputField(ID_GRAVITY_X, "gravity_x", OnParametersChanged, GRAVITY[0]);
-    PutNumberInputField(ID_GRAVITY_Y, "gravity_y", OnParametersChanged, GRAVITY[1]);
+    PutNumberInputField(ID_GRAVITY_X, "gravity_x", GRAVITY[0], OnParametersChanged);
+    PutNumberInputField(ID_GRAVITY_Y, "gravity_y", GRAVITY[1], OnParametersChanged);
 
     //balls parameters
     for (var i = 0; i < balls_n; i++) {
-        PutNumberInputField(ID_BALL_RADIUS + i, "ball_radius_" + i, OnParametersChanged, RADIUS_INITIAL, 1, 1000, 1);
-        PutNumberInputField(ID_BALL_MASS + i, "ball_mass_" + i, OnParametersChanged, MASS_INITIAL, 1, 1000, 1);
-        PutNumberInputField(ID_BALL_LENGTH + i, "ball_string_length_" + i, OnParametersChanged, STRING_LENGTH_INITIAL, 1, 1000, 1);
+        PutNumberInputField(ID_BALL_RADIUS + i, "ball_radius_" + i, RADIUS_INITIAL, 1, 1000, 1, OnParametersChanged);
+        PutNumberInputField(ID_BALL_MASS + i, "ball_mass_" + i, MASS_INITIAL, 1, 1000, 1, OnParametersChanged);
+        PutNumberInputField(ID_BALL_LENGTH + i, "ball_string_length_" + i, STRING_LENGTH_INITIAL, 1, 1000, 1, OnParametersChanged);
     }
 }
 
