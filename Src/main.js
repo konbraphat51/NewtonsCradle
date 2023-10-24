@@ -165,6 +165,10 @@ function Draw(){
     SetColor("white");
     DrawRect(0, 0, GetCanvasSize()[0], GetCanvasSize()[1]);
 
+    //roof
+    SetColor("black");
+    DrawLine(0, ROOF_Y, GetCanvasSize()[0], ROOF_Y);
+
     //draw balls & pins
     for (let i = 0; i < balls_n; i++) {
         //ball
@@ -347,6 +351,14 @@ function Control(){
 
             balls[selected_index].position = desired_position;
         } else if (is_selecting == 2) {
+            let position = mouse_position;
+
+            //snap align
+            const snap_distance = 10;
+            if (Math.abs(position[1] - ROOF_Y) < snap_distance) {
+                position[1] = ROOF_Y;
+            }
+
             //move pin
             balls[selected_index].pin.position = mouse_position;
         }
