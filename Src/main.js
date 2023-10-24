@@ -34,7 +34,7 @@ const ID_BALL_RADIUS = "ball_radius_";
 //Control
 function ControlForce(distance) {
     //the infinite integration should converge to 0 (Or it will keep swinging)
-    return (1 / (1 + distance)**2) * 1e7;
+    return (1 / (1 + distance)**2) * 2e7;
 }
 
 var balls_n = 5;
