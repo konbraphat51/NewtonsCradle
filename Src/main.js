@@ -314,23 +314,40 @@ function Control(){
             //click starting
             is_selecting = true;
 
-            //get nearest ball
+            //get nearest ball/pin
             let nearest_ball_index = 0;
-            let temp = 1e10;
+            let nearest_ball_distance = 1e10;
+            let nearest_pin_index = 0;
+            let nearest_pin_distance = 1e10;
             for (let i = 0; i < balls_n; i++) {
-                const distance = GetDistance(mouse_position, balls[i].position);
+                //ball
+                let distance = GetDistance(mouse_position, balls[i].position);
                 
-                if (distance < temp){
-                    temp = distance;
+                if (distance < nearest_ball_distance){
+                    nearest_ball_distance = distance;
                     nearest_ball_index = i;
+                }
+
+                //pin
+                distance = GetDistance(mouse_position, balls[i].pin.position);
+                if (distance < nearest_pin_distance) {
+                    nearest_pin_distance = distance;
+                    nearest_pin_index = i;
                 }
             }
 
-            is_selecting = 1;
-            selected_index = nearest_ball_index
+            if (nearest_ball_distance < nearest_pin_distance) {
+                //select ball
+                is_selecting = 1;
+                selected_index = nearest_ball_index
+            } else {
+                //select pin
+                is_selecting = 2;
+                selected_index = nearest_pin_index;
+            }
         }
         
-        if (is_selecting = 1){
+        if (is_selecting == 1){
             //>>calculate control force for the ball
             const pin_position = balls[selected_index].pin.position;
 
@@ -340,6 +357,9 @@ function Control(){
 
             balls[selected_index].GiveForce(control_force);
             //<<
+        } else if (is_selecting == 2) {
+            //move pin
+            balls[selected_index].pin.position = mouse_position;
         }
     } else {
         is_selecting = 0;
