@@ -31,12 +31,6 @@ const ID_BALL_LENGTH = "ball_length_";
 const ID_BALL_MASS = "ball_mass_";
 const ID_BALL_RADIUS = "ball_radius_";
 
-//Control
-function ControlForce(distance) {
-    //the infinite integration should converge to 0 (Or it will keep swinging)
-    return (1 / (1 + distance)**2) * 2e7;
-}
-
 var balls_n = 5;
 var balls = [];
 
@@ -348,15 +342,10 @@ function Control(){
         }
         
         if (is_selecting == 1){
-            //>>calculate control force for the ball
-            const pin_position = balls[selected_index].pin.position;
+            const pin2mouse = MinusVec(mouse_position, balls[selected_index].pin.position);
+            const desired_position = PlusVec(ChangeVecLength(pin2mouse, balls[selected_index].string_length), balls[selected_index].pin.position);
 
-            const pin2mouse = MinusVec(mouse_position, pin_position);        
-            const control_force_sc = ControlForce(GetVecLength(pin2mouse));
-            const control_force = MultiplyVec(control_force_sc, pin2mouse);
-
-            balls[selected_index].GiveForce(control_force);
-            //<<
+            balls[selected_index].position = desired_position;
         } else if (is_selecting == 2) {
             //move pin
             balls[selected_index].pin.position = mouse_position;
