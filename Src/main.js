@@ -163,7 +163,8 @@ function AllocateBalls() {
     const y = ROOF_Y + STRING_LENGTH_INITIAL;
 
     for (let i = 0; i < balls_n; i++) {
-        let x = center + interval * (i - balls_n);
+        let x = center + interval * (i - balls_n/2);
+        Log(x)
 
         let pin = new Pin([x, ROOF_Y]);
         balls.push(new Ball([x, y], RADIUS_INITIAL, MASS_INITIAL, STRING_LENGTH_INITIAL, pin));
