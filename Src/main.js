@@ -28,7 +28,13 @@ const ID_GRAVITY_X = "gravity_x";
 const ID_GRAVITY_Y = "gravity_y";
 
 function CalculateViscosity(spring, restitution, mass) {
-    return -2*Math.log(restitution) * Math.sqrt(spring * mass / (Math.log(restitution)**2 + Math.PI**2));
+    //https://thesis.ceri.go.jp/db/files/00102920001.pdf
+    let damping = Math.sqrt(Math.log(restitution)**2 / (Math.log(restitution)**2 + Math.PI**2));
+    if (Approximate(restitution, 0)) {
+        //same speed INF/INF = 1
+        damping = 1
+    }
+    return 2 * damping * Math.sqrt(mass * spring);
 }
 
 const ID_BALL_LENGTH = "ball_length_";
@@ -129,11 +135,11 @@ function Initialize() {
 function GetParameters() {
     //BALL2BALL
     BALL2BALL_SPRING = GetNumberInputFieldValueE(ID_BALL2BALL_SPRING);
-    BALL2BALL_RESTITUTION = GetNumberInputFieldValue(ID_BALL2BALL_RESTITUTION);
+    BALL2BALL_RESTITUTION = GetNumberInputFieldValue(ID_BALL2BALL_RESTITUTION, true);
 
     //STRING2BALL
     STRING2BALL_SPRING = GetNumberInputFieldValueE(ID_STRING2BALL_SPRING);
-    STRING2BALL_RESTITUTION = GetNumberInputFieldValue(ID_STRING2BALL_RESTITUTION);
+    STRING2BALL_RESTITUTION = GetNumberInputFieldValue(ID_STRING2BALL_RESTITUTION, true);
 
     //GRAVITY
     GRAVITY[0] = GetNumberInputFieldValue(ID_GRAVITY_X, true);
@@ -209,6 +215,7 @@ function CalculateContactForce(spring, restitution, overlap, speed_relative, mas
     //Descrete Element Method
     const force_spring = spring * overlap;
     const vigosity = CalculateViscosity(spring, restitution, mass);
+    //Log(vigosity)
     const force_elastic = vigosity * speed_relative;
 
     return -force_elastic - force_spring;
@@ -238,12 +245,15 @@ function SimulateContactForce(){
         const speed_relative = DotVec(zero2one, MinusVec(ball0.velocity, ball1.velocity)) / GetVecLength(zero2one);
 
         //calculate force
-        const force_sc = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, speed_relative);
-        const force = ChangeVecLength(zero2one, force_sc);
+        const force_sc0 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, speed_relative, ball0.mass);
+        const force0 = ChangeVecLength(zero2one, force_sc0);
+
+        const force_sc1 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, -overlap, -speed_relative, ball1.mass);
+        const force1 = ChangeVecLength(MultiplyVec(-1, zero2one), force_sc1);
 
         //give force to the balls
-        ball0.GiveForce(force);
-        ball1.GiveForce(MultiplyVec(-1, force));
+        ball0.GiveForce(force0);
+        ball1.GiveForce(force1);
     }
 }
 
@@ -276,7 +286,7 @@ function SimulateStringConstraint(){
         const speed_relative = DotVec(MultiplyVec(-1, pin2ball), ball.velocity) / GetVecLength(pin2ball);
 
         //calculate force
-        const force_sc = CalculateContactForce(STRING2BALL_SPRING, STRING2BALL_RESTITUTION, overlap, speed_relative);
+        const force_sc = CalculateContactForce(STRING2BALL_SPRING, STRING2BALL_RESTITUTION, overlap, speed_relative, ball.mass);
 
         //calculate force direction)
         const force = ChangeVecLength(MultiplyVec(-1, pin2ball), force_sc);
