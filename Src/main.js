@@ -12,7 +12,7 @@ const COLORS = ["red", "green", "blue", "yellow", "purple", "orange", "pink", "b
 const MASS_INITIAL = 100;
 
 //physics consts
-var BALL2BALL_SPRING = 1e4;         //バネ係数
+var BALL2BALL_SPRING = 1e5;         //バネ係数
 var BALL2BALL_RESTITUTION = 1;    //反発係数
 var STRING2BALL_SPRING = 1e4; 
 var STRING2BALL_RESTITUTION = 0;
