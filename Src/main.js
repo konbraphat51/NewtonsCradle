@@ -12,20 +12,24 @@ const COLORS = ["red", "green", "blue", "yellow", "purple", "orange", "pink", "b
 const MASS_INITIAL = 100;
 
 //physics consts
-var BALL2BALL_SPRING = 1e4;   //バネ係数
-var BALL2BALL_ELASTIC = 1e3;  //弾性係数
+var BALL2BALL_SPRING = 1e4;         //バネ係数
+var BALL2BALL_RESTITUTION = 1;    //反発係数
 var STRING2BALL_SPRING = 1e4; 
-var STRING2BALL_ELASTIC = 1e3;
+var STRING2BALL_RESTITUTION = 0;
 var GRAVITY = [0, 1e2];
 
 //HTML ids
 const ID_BALLS = "balls";
 const ID_BALL2BALL_SPRING = "ball2ball_spring";
-const ID_BALL2BALL_ELASTIC = "ball2ball_elastic";
+const ID_BALL2BALL_RESTITUTION = "ball2ball_restitution";
 const ID_STRING2BALL_SPRING = "string2ball_spring";
-const ID_STRING2BALL_ELASTIC = "string2ball_elastic";
+const ID_STRING2BALL_RESTITUTION = "string2ball_restitution";
 const ID_GRAVITY_X = "gravity_x";
 const ID_GRAVITY_Y = "gravity_y";
+
+function CalculateViscosity(spring, restitution, mass) {
+    return -2*Math.log(restitution) * Math.sqrt(spring * mass / (Math.log(restitution)**2 + Math.PI**2));
+}
 
 const ID_BALL_LENGTH = "ball_length_";
 const ID_BALL_MASS = "ball_mass_";
@@ -75,11 +79,11 @@ function PutAdjustmentFields() {
 
     //BALL2BALL
     PutNumberInputFieldE(ID_BALL2BALL_SPRING, "ball2ball_spring", BALL2BALL_SPRING, OnParametersChanged);
-    PutNumberInputFieldE(ID_BALL2BALL_ELASTIC, "ball2ball_elastic", BALL2BALL_ELASTIC, OnParametersChanged);
+    PutNumberInputField(ID_BALL2BALL_RESTITUTION, "ball2ball_restitution", BALL2BALL_RESTITUTION, -1e10, 1e10, 0.01, OnParametersChanged);
 
     //STRING2BALL
     PutNumberInputFieldE(ID_STRING2BALL_SPRING, "string2ball_spring", STRING2BALL_SPRING, OnParametersChanged);
-    PutNumberInputFieldE(ID_STRING2BALL_ELASTIC, "string2ball_elastic", STRING2BALL_ELASTIC, OnParametersChanged);
+    PutNumberInputField(ID_STRING2BALL_RESTITUTION, "string2ball_restitution", STRING2BALL_RESTITUTION, -1e10, 1e10, 0.01, OnParametersChanged);
 
     //GRAVITY
     PutNumberInputField(ID_GRAVITY_X, "gravity_x", GRAVITY[0], OnParametersChanged);
@@ -125,11 +129,11 @@ function Initialize() {
 function GetParameters() {
     //BALL2BALL
     BALL2BALL_SPRING = GetNumberInputFieldValueE(ID_BALL2BALL_SPRING);
-    BALL2BALL_ELASTIC = GetNumberInputFieldValueE(ID_BALL2BALL_ELASTIC);
+    BALL2BALL_RESTITUTION = GetNumberInputFieldValue(ID_BALL2BALL_RESTITUTION);
 
     //STRING2BALL
     STRING2BALL_SPRING = GetNumberInputFieldValueE(ID_STRING2BALL_SPRING);
-    STRING2BALL_ELASTIC = GetNumberInputFieldValueE(ID_STRING2BALL_ELASTIC);
+    STRING2BALL_RESTITUTION = GetNumberInputFieldValue(ID_STRING2BALL_RESTITUTION);
 
     //GRAVITY
     GRAVITY[0] = GetNumberInputFieldValue(ID_GRAVITY_X, true);
@@ -201,10 +205,11 @@ function SimulatePhysics(){
     SimulateMovement();
 }
 
-function CalculateContactForce(spring, elastic, overlap, speed_relative){
+function CalculateContactForce(spring, restitution, overlap, speed_relative, mass){
     //Descrete Element Method
     const force_spring = spring * overlap;
-    const force_elastic = elastic * speed_relative;
+    const vigosity = CalculateViscosity(spring, restitution, mass);
+    const force_elastic = vigosity * speed_relative;
 
     return -force_elastic - force_spring;
 }
@@ -233,7 +238,7 @@ function SimulateContactForce(){
         const speed_relative = DotVec(zero2one, MinusVec(ball0.velocity, ball1.velocity)) / GetVecLength(zero2one);
 
         //calculate force
-        const force_sc = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_ELASTIC, overlap, speed_relative);
+        const force_sc = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, speed_relative);
         const force = ChangeVecLength(zero2one, force_sc);
 
         //give force to the balls
@@ -271,7 +276,7 @@ function SimulateStringConstraint(){
         const speed_relative = DotVec(MultiplyVec(-1, pin2ball), ball.velocity) / GetVecLength(pin2ball);
 
         //calculate force
-        const force_sc = CalculateContactForce(STRING2BALL_SPRING, STRING2BALL_ELASTIC, overlap, speed_relative);
+        const force_sc = CalculateContactForce(STRING2BALL_SPRING, STRING2BALL_RESTITUTION, overlap, speed_relative);
 
         //calculate force direction)
         const force = ChangeVecLength(MultiplyVec(-1, pin2ball), force_sc);
