@@ -365,6 +365,9 @@ function Control(){
             const desired_position = PlusVec(ChangeVecLength(pin2mouse, balls[selected_index].string_length), balls[selected_index].pin.position);
 
             balls[selected_index].position = desired_position;
+
+            //ball is stopping
+            balls[selected_index].velocity = [0,0]
         } else if (is_selecting == 2) {
             let position = mouse_position;
 
