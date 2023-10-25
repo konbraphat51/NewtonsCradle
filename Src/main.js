@@ -92,8 +92,8 @@ function PutAdjustmentFields() {
     PutNumberInputField(ID_STRING2BALL_RESTITUTION, "string2ball_restitution", STRING2BALL_RESTITUTION, -1e10, 1e10, 0.01, OnParametersChanged);
 
     //GRAVITY
-    PutNumberInputField(ID_GRAVITY_X, "gravity_x", GRAVITY[0], OnParametersChanged);
-    PutNumberInputField(ID_GRAVITY_Y, "gravity_y", GRAVITY[1], OnParametersChanged);
+    PutNumberInputField(ID_GRAVITY_X, "gravity_x", GRAVITY[0], -1e18, 1e18, 1, OnParametersChanged);
+    PutNumberInputField(ID_GRAVITY_Y, "gravity_y", GRAVITY[1], -1e18, 1e18, 1, OnParametersChanged);
 
     //balls parameters
     for (let i = 0; i < balls_n; i++) {
@@ -164,7 +164,6 @@ function AllocateBalls() {
 
     for (let i = 0; i < balls_n; i++) {
         let x = center + interval * (i - balls_n/2);
-        Log(x)
 
         let pin = new Pin([x, ROOF_Y]);
         balls.push(new Ball([x, y], RADIUS_INITIAL, MASS_INITIAL, STRING_LENGTH_INITIAL, pin));
