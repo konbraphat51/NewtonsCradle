@@ -248,7 +248,7 @@ function SimulateContactForce(){
         const force_sc0 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, speed_relative, ball0.mass);
         const force0 = ChangeVecLength(zero2one, force_sc0);
 
-        const force_sc1 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, -speed_relative, ball1.mass);
+        const force_sc1 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, speed_relative, ball1.mass);
         const force1 = ChangeVecLength(MultiplyVec(-1, zero2one), force_sc1);
 
         //give force to the balls
