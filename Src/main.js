@@ -222,11 +222,11 @@ function CalculateContactForce(spring, restitution, overlap, speed_relative, mas
 }
 
 function SimulateContactForce(){
-    //per pair of balls
-    for (let cnt = 0; cnt < balls.length -1; cnt++) {
+    //for all combinations of balls
+    for (let cnt0 = 0; cnt0 < balls.length -1; cnt0++) for (let cnt1 = cnt0+1; cnt1 < balls.length; cnt1++) { 
         //balls[cnt] and balls[cnt + 1] are neighbors
-        const ball0 = balls[cnt];
-        const ball1 = balls[cnt + 1];
+        const ball0 = balls[cnt0];
+        const ball1 = balls[cnt1];
 
         //0-to-1 side: +
         //calculate relative amounts based on ball0
@@ -248,7 +248,7 @@ function SimulateContactForce(){
         const force_sc0 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, speed_relative, ball0.mass);
         const force0 = ChangeVecLength(zero2one, force_sc0);
 
-        const force_sc1 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, -overlap, -speed_relative, ball1.mass);
+        const force_sc1 = CalculateContactForce(BALL2BALL_SPRING, BALL2BALL_RESTITUTION, overlap, -speed_relative, ball1.mass);
         const force1 = ChangeVecLength(MultiplyVec(-1, zero2one), force_sc1);
 
         //give force to the balls
