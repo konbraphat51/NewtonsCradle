@@ -85,11 +85,11 @@ function PutAdjustmentFields() {
 
     //BALL2BALL
     PutNumberInputFieldE(ID_BALL2BALL_SPRING, "ball2ball_spring", BALL2BALL_SPRING, OnParametersChanged);
-    PutNumberInputField(ID_BALL2BALL_RESTITUTION, "ball2ball_restitution", BALL2BALL_RESTITUTION, 0.001, 1e10, 0.01, OnParametersChanged);
+    PutNumberInputField(ID_BALL2BALL_RESTITUTION, "ball2ball_restitution", BALL2BALL_RESTITUTION, -1e18, 1e10, 0.01, OnParametersChanged);
 
     //STRING2BALL
     PutNumberInputFieldE(ID_STRING2BALL_SPRING, "string2ball_spring", STRING2BALL_SPRING, OnParametersChanged);
-    PutNumberInputField(ID_STRING2BALL_RESTITUTION, "string2ball_restitution", STRING2BALL_RESTITUTION, 0.001, 1e10, 0.01, OnParametersChanged);
+    PutNumberInputField(ID_STRING2BALL_RESTITUTION, "string2ball_restitution", STRING2BALL_RESTITUTION, -1e18, 1e10, 0.01, OnParametersChanged);
 
     //GRAVITY
     PutNumberInputField(ID_GRAVITY_X, "gravity_x", GRAVITY[0], -1e18, 1e18, 1, OnParametersChanged);
