@@ -1,5 +1,5 @@
 //Base
-const FPS = 60;
+const FPS = 1000;
 const SPF = 1 / FPS;
 
 //String
@@ -12,11 +12,11 @@ const COLORS = ["red", "green", "blue", "yellow", "purple", "orange", "pink", "b
 const MASS_INITIAL = 100;
 
 //physics consts
-var BALL2BALL_SPRING = 1e5;         //バネ係数
+var BALL2BALL_SPRING = 5e6;         //バネ係数
 var BALL2BALL_RESTITUTION = 1;    //反発係数
-var STRING2BALL_SPRING = 1e4; 
+var STRING2BALL_SPRING = 1e6; 
 var STRING2BALL_RESTITUTION = 0;
-var GRAVITY = [0, 1e2];
+var GRAVITY = [0, 4e3];
 
 //HTML ids
 const ID_BALLS = "balls";
@@ -85,11 +85,11 @@ function PutAdjustmentFields() {
 
     //BALL2BALL
     PutNumberInputFieldE(ID_BALL2BALL_SPRING, "ball2ball_spring", BALL2BALL_SPRING, OnParametersChanged);
-    PutNumberInputField(ID_BALL2BALL_RESTITUTION, "ball2ball_restitution", BALL2BALL_RESTITUTION, -1e10, 1e10, 0.01, OnParametersChanged);
+    PutNumberInputField(ID_BALL2BALL_RESTITUTION, "ball2ball_restitution", BALL2BALL_RESTITUTION, 0.001, 1e10, 0.01, OnParametersChanged);
 
     //STRING2BALL
     PutNumberInputFieldE(ID_STRING2BALL_SPRING, "string2ball_spring", STRING2BALL_SPRING, OnParametersChanged);
-    PutNumberInputField(ID_STRING2BALL_RESTITUTION, "string2ball_restitution", STRING2BALL_RESTITUTION, -1e10, 1e10, 0.01, OnParametersChanged);
+    PutNumberInputField(ID_STRING2BALL_RESTITUTION, "string2ball_restitution", STRING2BALL_RESTITUTION, 0.001, 1e10, 0.01, OnParametersChanged);
 
     //GRAVITY
     PutNumberInputField(ID_GRAVITY_X, "gravity_x", GRAVITY[0], -1e18, 1e18, 1, OnParametersChanged);
